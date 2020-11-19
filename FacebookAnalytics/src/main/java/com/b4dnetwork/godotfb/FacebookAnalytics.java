@@ -19,7 +19,7 @@ import java.util.List;
 public class FacebookAnalytics extends GodotPlugin {
     private Activity activity = null;
     private AppEventsLogger logger;
-    private static final String TAG = "FbAppAds";
+    private static final String TAG = "FBAnalytics";
 
 
     public FacebookAnalytics(Godot godot) {
@@ -39,7 +39,7 @@ public class FacebookAnalytics extends GodotPlugin {
         return Arrays.asList(
                 "Init","setAutoLogAppEventsEnabled",
                 "setAutoInitEnabled","setAdvertiserIdCollectionEnabled",
-                "logAdClickEvent","setDebugEnabled"
+                "logAdClickEvent","setDebugEnabled","logCustomEvent","logCustomSumEvent"
         );
     }
 
@@ -48,14 +48,13 @@ public class FacebookAnalytics extends GodotPlugin {
      * @param gameId Facebook game ID
      */
     public void Init(String gameId){
-        if(!FacebookSdk.isInitialized()){
-            FacebookSdk.setApplicationId("306491293934948");
-            logger = AppEventsLogger.newLogger(activity);
-            Log.d(TAG, "Facebook app ads SDK Initialized ");
-            return;
-        }
-        Log.d(TAG, "Facebook app ads SDK Already Initialized ");
+        if(FacebookSdk.isInitialized()) return;
+        FacebookSdk.setApplicationId(gameId);
+        FacebookSdk.sdkInitialize(activity);
+        logger = AppEventsLogger.newLogger(activity);
+        Log.d(TAG, "Facebook Analytics Initialized ");
     }
+
 
     /**
      * Enable(true) or disable (false) auto log app events
@@ -63,7 +62,7 @@ public class FacebookAnalytics extends GodotPlugin {
      */
     public void setAutoLogAppEventsEnabled(boolean autoLogEnabled){
         FacebookSdk.setAutoLogAppEventsEnabled(autoLogEnabled);
-        Log.d(TAG, "setAutoLogAppEventsEnabled: autoLogEnabled");
+        Log.d(TAG, "setAutoLogAppEventsEnabled");
     }
 
     /**
@@ -72,7 +71,7 @@ public class FacebookAnalytics extends GodotPlugin {
      */
     public void setAutoInitEnabled(boolean autoInitEnabled){
         FacebookSdk.setAutoInitEnabled(autoInitEnabled);
-        Log.d(TAG, "setAutoInitEnabled: autoInitEnabled");
+        Log.d(TAG, "setAutoInitEnabled");
     }
 
     /**
@@ -81,7 +80,7 @@ public class FacebookAnalytics extends GodotPlugin {
      */
     public void setAdvertiserIdCollectionEnabled(boolean idCollectionEnabled){
         FacebookSdk.setAdvertiserIDCollectionEnabled(idCollectionEnabled);
-        Log.d(TAG, "setAdvertiserIdCollectionEnabled: idCollectionEnabled");
+        Log.d(TAG, "setAdvertiserIdCollectionEnabled");
     }
 
     /**
@@ -92,6 +91,7 @@ public class FacebookAnalytics extends GodotPlugin {
         FacebookSdk.setIsDebugEnabled(debugEnabled);
         if(!debugEnabled) return;
         FacebookSdk.addLoggingBehavior(LoggingBehavior.APP_EVENTS);
+        Log.d(TAG, "setDebugEnabled");
     }
 
 
@@ -115,6 +115,16 @@ public class FacebookAnalytics extends GodotPlugin {
     public void logCustomEvent(String eventName){
         logger.logEvent(eventName);
         Log.d(TAG, "logCustomEvent: " + eventName);
+    }
+
+    /**
+     * Log a custom Event with a value.
+     * @param eventName Event Name
+     * @param valueToSum Event value to sum
+     */
+    public void logCustomSumEvent(String eventName , int valueToSum){
+        logger.logEvent(eventName,valueToSum);
+        Log.d(TAG, "logCustomSumEvent: " + eventName + "value : " + valueToSum);
     }
 
 }
